@@ -1,4 +1,4 @@
-module github.com/amitabhprasad/bookstore-app/bookstore-oauth2-go
+module github.com/amitabhprasad/bookstore-oauth2-go
 
 go 1.17
 
