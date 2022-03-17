@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/amitabhprasad/bookstore-oauth2-go/errors"
+	"github.com/amitabhprasad/bookstore-util-go/rest_errors"
 	"github.com/mercadolibre/golang-restclient/rest"
 )
 
@@ -61,10 +61,10 @@ func GetClientId(request *http.Request) int64 {
 	}
 	return clientId
 }
-func AuthenticateRequest(request *http.Request) *errors.RestErr {
+func AuthenticateRequest(request *http.Request) *rest_errors.RestErr {
 	fmt.Println("Inside AuthenticateRequest ******** ")
 	if request == nil {
-		return errors.NewbadRequestError("Empty request")
+		return rest_errors.NewbadRequestError("Empty request")
 	}
 	cleanRequest(request)
 	accessTokenId := strings.TrimSpace(request.URL.Query().Get(paramAccessToken))
@@ -91,22 +91,22 @@ func cleanRequest(request *http.Request) {
 	request.Header.Del(headerXCallerId)
 }
 
-func getAccessToken(at string) (*accessToken, *errors.RestErr) {
+func getAccessToken(at string) (*accessToken, *rest_errors.RestErr) {
 	response := oauthRestClient.Get(fmt.Sprintf("/oauth/access_token/%s", at))
 	if response == nil || response.Response == nil {
-		return nil, errors.NewInternalServerError("Invalid response when trying to get access-token")
+		return nil, rest_errors.NewInternalServerError("Invalid response when trying to get access-token", nil)
 	}
 	if response.StatusCode > 299 {
-		var restErr errors.RestErr
+		var restErr rest_errors.RestErr
 		if err := json.Unmarshal(response.Bytes(), &restErr); err != nil {
-			return nil, errors.NewInternalServerError("Invalid error interface when trying to get access-token")
+			return nil, rest_errors.NewInternalServerError("Invalid error interface when trying to get access-token", err)
 		}
 		return nil, &restErr
 	}
 	var token accessToken
 	err := json.Unmarshal(response.Bytes(), &token)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to marshal get accesstoken response")
+		return nil, rest_errors.NewInternalServerError("unable to marshal get accesstoken response", err)
 	}
 	return &token, nil
 }
