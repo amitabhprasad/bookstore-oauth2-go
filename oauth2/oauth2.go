@@ -61,7 +61,7 @@ func GetClientId(request *http.Request) int64 {
 	}
 	return clientId
 }
-func AuthenticateRequest(request *http.Request) rest_errors.RestErr {
+func AuthenticateRequest(request *http.Request, auth_url string) rest_errors.RestErr {
 	fmt.Println("Inside AuthenticateRequest ******** ")
 	if request == nil {
 		return rest_errors.NewBadRequestError("Empty request")
@@ -71,6 +71,10 @@ func AuthenticateRequest(request *http.Request) rest_errors.RestErr {
 	if accessTokenId == "" {
 		return nil
 	}
+	if auth_url != "" {
+		oauthRestClient.BaseURL = auth_url
+	}
+	fmt.Println("Inside AuthenticateRequest using ****** ", oauthRestClient.BaseURL)
 	accessToken, err := getAccessToken(accessTokenId)
 	if err != nil {
 		if err.Status() == http.StatusNotFound {
