@@ -98,7 +98,8 @@ func cleanRequest(request *http.Request) {
 func getAccessToken(at string) (*accessToken, rest_errors.RestErr) {
 	response := oauthRestClient.Get(fmt.Sprintf("/oauth/access_token/%s", at))
 	if response == nil || response.Response == nil {
-		return nil, rest_errors.NewInternalServerError("Invalid response when trying to get access-token", nil)
+		return nil, rest_errors.NewInternalServerError(
+			fmt.Sprintf("Invalid response when trying to get access-token using client %s ", oauthRestClient.BaseURL), nil)
 	}
 	if response.StatusCode > 299 {
 		var restErr rest_errors.RestErr
